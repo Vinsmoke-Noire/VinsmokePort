@@ -1,26 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ===== FUNGSI ANIMASI KETIK YANG BISA DIGUNAKAN KEMBALI =====
-    /**
-     * Membuat animasi ketik pada elemen yang ditargetkan.
-     * @param {HTMLElement} element - Elemen span tempat teks akan diketik.
-     * @param {string[]} words - Array berisi kata-kata yang akan ditampilkan.
-     */
+    // ===== FUNGSI ANIMASI KETIK =====
     function createTypingAnimation(element, words) {
-        if (!element) return; // Hentikan jika elemen tidak ditemukan
-
+        if (!element || words.length === 0) return;
         let wordIndex = 0;
         let charIndex = 0;
         let isDeleting = false;
-        const typingSpeed = 150;
-        const deletingSpeed = 100;
-        const delayBetweenWords = 2000;
-
-        function type() {
+        const type = () => {
             const currentWord = words[wordIndex];
-            
             if (isDeleting) {
-                // Proses menghapus
                 element.textContent = currentWord.substring(0, charIndex - 1);
                 charIndex--;
                 if (charIndex === 0) {
@@ -28,48 +16,35 @@ document.addEventListener('DOMContentLoaded', function() {
                     wordIndex = (wordIndex + 1) % words.length;
                     setTimeout(type, 500);
                 } else {
-                    setTimeout(type, deletingSpeed);
+                    setTimeout(type, 100);
                 }
             } else {
-                // Proses mengetik
                 element.textContent = currentWord.substring(0, charIndex + 1);
                 charIndex++;
                 if (charIndex === currentWord.length) {
                     isDeleting = true;
-                    setTimeout(type, delayBetweenWords);
+                    setTimeout(type, 2000);
                 } else {
-                    setTimeout(type, typingSpeed);
+                    setTimeout(type, 150);
                 }
             }
-        }
-        type(); // Mulai animasi
+        };
+        type();
     }
 
-    // --- Panggil animasi untuk setiap elemen ---
-
-    // 1. Animasi untuk Sidebar
-    const sidebarTypingElement = document.querySelector('.sidebar-typing');
-    const sidebarWords = ["Web Developer", "Designer", "Freelancer"];
-    createTypingAnimation(sidebarTypingElement, sidebarWords);
-
-    // 2. Animasi untuk Konten Utama (Home)
-    const mainTypingElement = document.querySelector('.main-typing');
-    const mainWords = ["Web Developer", "Designer", "Freelancer"];
-    createTypingAnimation(mainTypingElement, mainWords);
-
+    const typingWords = ["Web Developer", "Designer", "Freelancer"];
+    createTypingAnimation(document.querySelector('.sidebar-typing'), typingWords);
+    createTypingAnimation(document.querySelector('.main-typing'), typingWords);
 
     // ===== NAVIGASI AKTIF SAAT SCROLL =====
     const sections = document.querySelectorAll('section[id]');
     const navLinks = document.querySelectorAll('#nav-menu a');
-
-    function updateActiveNav() {
+    const updateActiveNav = () => {
         let scrollY = window.pageYOffset;
-
         sections.forEach(current => {
             const sectionHeight = current.offsetHeight;
-            const sectionTop = current.offsetTop - 50; // offset
+            const sectionTop = current.offsetTop - 50;
             const sectionId = current.getAttribute('id');
-
             if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
                 navLinks.forEach(link => {
                     link.classList.remove('active');
@@ -79,8 +54,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
-    }
-
+    };
     window.addEventListener('scroll', updateActiveNav);
-    updateActiveNav(); // Panggil saat pertama kali load
+    updateActiveNav();
+
+    // ===== MENU TOGGLE MOBILE =====
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menu-toggle');
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        });
+        document.addEventListener('click', (event) => {
+            if (sidebar.classList.contains('open') && !sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                 sidebar.classList.remove('open');
+            }
+        });
+    }
 });
